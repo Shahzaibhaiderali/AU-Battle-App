@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="https://i.imgur.com/sC08J5U.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AU Battle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        background-color: var(--bg-color, #0c0a3a);
+        transition: background-color 0.3s ease;
+      }
+      /* Custom theme styles */
+      :root {
+        --bg-color: #0c0a3a;
+        --text-primary: #FFFFFF;
+        --text-secondary: #A2B2B9;
+        --accent-primary: #00eafa;
+        --accent-hover: #00E0C6;
+        --card-bg: rgba(22, 28, 41, 0.7);
+        --border-color: #30363d;
+        --hover-bg: rgba(255, 255, 255, 0.1);
+      }
+      html.theme-light {
+        --bg-color: #f0f2f5;
+        --text-primary: #1c1e21;
+        --text-secondary: #65676b;
+        --accent-primary: #1877f2;
+        --accent-hover: #166fe5;
+        --card-bg: rgba(255, 255, 255, 1);
+        --border-color: #ced0d4;
+        --hover-bg: rgba(0, 0, 0, 0.05);
+      }
+      html.theme-tidal {
+        --bg-color: #0A191E;
+        --text-primary: #E0FCFF;
+        --text-secondary: #88B0B5;
+        --accent-primary: #38F9D7;
+        --accent-hover: #24E4C0;
+        --card-bg: rgba(18, 43, 50, 0.7);
+        --border-color: #1A3A44;
+        --hover-bg: rgba(56, 249, 215, 0.1);
+      }
+      .bg-theme { background-color: var(--bg-color); }
+      .text-theme-primary { color: var(--text-primary); }
+      .text-theme-secondary { color: var(--text-secondary); }
+      .text-accent-primary { color: var(--accent-primary); }
+      .bg-accent-primary { background-color: var(--accent-primary); }
+      .hover\:bg-accent-hover:hover { background-color: var(--accent-hover); }
+      .border-theme { border-color: var(--border-color); }
+      .divide-theme > :not([hidden]) ~ :not([hidden]) { border-color: var(--border-color); }
+      .ring-accent-primary {--tw-ring-color: var(--accent-primary) !important;}
+      .border-accent-primary {border-color: var(--accent-primary) !important;}
+      .bg-card { background-color: var(--card-bg); }
+      .active-nav-item { color: var(--accent-primary) !important; }
+      .bg-hover:hover { background-color: var(--hover-bg); }
+
+      /* Bubble Animation */
+      .bubbles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        overflow: hidden;
+        top: 0;
+        left: 0;
+      }
+      .bubble {
+        position: absolute;
+        bottom: -150px;
+        background: rgba(0, 234, 250, 0.15);
+        border-radius: 50%;
+        animation: bubble-rise linear infinite;
+        opacity: 0;
+      }
+      .bubble:nth-child(1) { width: 40px; height: 40px; left: 10%; animation-duration: 25s; animation-delay: 0s; --sway: 60px; }
+      .bubble:nth-child(2) { width: 20px; height: 20px; left: 20%; animation-duration: 15s; animation-delay: 2s; --sway: -40px; }
+      .bubble:nth-child(3) { width: 80px; height: 80px; left: 35%; animation-duration: 20s; animation-delay: 0s; background: rgba(0, 234, 250, 0.25); --sway: 80px; }
+      .bubble:nth-child(4) { width: 30px; height: 30px; left: 50%; animation-duration: 18s; animation-delay: 4s; --sway: -50px; }
+      .bubble:nth-child(5) { width: 25px; height: 25px; left: 55%; animation-duration: 14s; animation-delay: 2.5s; --sway: 70px; }
+      .bubble:nth-child(6) { width: 45px; height: 45px; left: 65%; animation-duration: 16s; animation-delay: 5s; --sway: -60px; }
+      .bubble:nth-child(7) { width: 35px; height: 35px; left: 80%; animation-duration: 12s; animation-delay: 1s; --sway: 50px; }
+      .bubble:nth-child(8) { width: 60px; height: 60px; left: 90%; animation-duration: 28s; animation-delay: 3s; background: rgba(0, 234, 250, 0.2); --sway: -80px; }
+      .bubble:nth-child(9) { width: 15px; height: 15px; left: 70%; animation-duration: 10s; animation-delay: 6s; --sway: 30px; }
+      .bubble:nth-child(10) { width: 50px; height: 50px; left: 25%; animation-duration: 22s; animation-delay: 8s; --sway: 70px; }
+      .bubble:nth-child(11) { width: 25px; height: 25px; left: 5%; animation-duration: 19s; animation-delay: 9s; --sway: -45px; }
+      .bubble:nth-child(12) { width: 35px; height: 35px; left: 45%; animation-duration: 30s; animation-delay: 10s; background: rgba(0, 234, 250, 0.1); --sway: 65px; }
+
+      @keyframes bubble-rise {
+        0% {
+          bottom: -150px;
+          transform: translateX(0);
+          opacity: 0;
+        }
+        10% {
+          opacity: 0.8;
+        }
+        25% {
+          transform: translateX(var(--sway, 40px));
+        }
+        50% {
+          transform: translateX(calc(var(--sway, 40px) * -0.5));
+        }
+        75% {
+          transform: translateX(var(--sway, 40px));
+        }
+        90% {
+          opacity: 0.5;
+        }
+        100% {
+          bottom: 100vh;
+          transform: translateX(0);
+          opacity: 0;
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-20px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      .animate-float {
+        animation: float 6s ease-in-out infinite;
+      }
+
+      /* Animations */
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .fade-in-up {
+        animation: fade-in-up 0.5s ease-out forwards;
+        opacity: 0; /* Start hidden */
+      }
+
+      .stagger-children > * {
+        animation-delay: var(--stagger-delay);
+      }
+
+      /* Leaderboard Glow */
+      .glow-gold { box-shadow: 0 0 20px -2px rgba(255, 215, 0, 0.6); }
+      .glow-silver { box-shadow: 0 0 20px -2px rgba(192, 192, 192, 0.6); }
+      .glow-bronze { box-shadow: 0 0 20px -2px rgba(205, 127, 50, 0.6); }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.0/",
+    "react": "https://esm.sh/react@^19.1.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.7.1"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
+</body>
+</html>
