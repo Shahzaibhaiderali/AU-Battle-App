@@ -51,8 +51,8 @@ const ForgotPasswordScreen: React.FC = () => {
                             className="pl-12"
                         />
                     </div>
-                    <Button type="submit" fullWidth disabled={isLoading || !!message}>
-                        {isLoading ? 'Sending...' : 'Send Reset Link'}
+                    <Button type="submit" fullWidth isLoading={isLoading} disabled={!!message}>
+                        Send Reset Link
                     </Button>
                 </form>
 

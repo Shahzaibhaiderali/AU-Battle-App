@@ -5,14 +5,36 @@ import { getUpdates } from '../../services/authService';
 import { Update } from '../../types';
 import { Spinner, BackArrowIcon, ChevronRightIcon } from '../../constants';
 
+const UpdatesSkeleton: React.FC = () => (
+    <div className="space-y-3 px-4 animate-pulse">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="bg-card/50 border border-theme rounded-lg h-[68px] flex items-center p-4">
+            <div className="w-2.5 h-2.5 bg-slate-700/50 rounded-full mr-3 flex-shrink-0"></div>
+            <div className="h-4 bg-slate-700/50 rounded w-3/4"></div>
+        </div>
+      ))}
+    </div>
+  );
+
 const UpdatesScreen: React.FC = () => {
     const [updates, setUpdates] = useState<Update[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [openUpdateId, setOpenUpdateId] = useState<number | null>(null);
     const [readUpdateIds, setReadUpdateIds] = useState<Set<number>>(() => {
-        const stored = localStorage.getItem('readUpdateIds');
-        return stored ? new Set(JSON.parse(stored)) : new Set();
+        try {
+            const stored = localStorage.getItem('readUpdateIds');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                if (Array.isArray(parsed)) {
+                    return new Set(parsed);
+                }
+            }
+        } catch (e) {
+            console.error("Failed to parse readUpdateIds from localStorage. Resetting.", e);
+            localStorage.removeItem('readUpdateIds');
+        }
+        return new Set();
     });
 
     const { token } = useAuth();
@@ -54,11 +76,11 @@ const UpdatesScreen: React.FC = () => {
             </header>
 
             {isLoading ? (
-                <div className="flex justify-center items-center h-64">
-                    <Spinner className="w-10 h-10 text-accent-primary" />
-                </div>
+                <UpdatesSkeleton />
             ) : error ? (
                 <p className="text-center text-red-400">{error}</p>
+            ) : updates.length === 0 ? (
+                 <p className="text-center text-theme-secondary py-16">No new updates right now.</p>
             ) : (
                 <div className="space-y-3 px-4 stagger-children">
                     {updates.map((update, index) => (

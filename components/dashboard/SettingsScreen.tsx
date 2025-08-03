@@ -1,13 +1,21 @@
 
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+
+
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { BackArrowIcon } from '../../constants';
+import ChangePasswordModal from '../modals/ChangePasswordModal';
 
 const SettingsScreen: React.FC = () => {
     const navigate = useNavigate();
+    const [isPasswordModalOpen, setPasswordModalOpen] = useState(false);
 
     return (
         <div className="fade-in-up">
+            <ChangePasswordModal 
+                isOpen={isPasswordModalOpen}
+                onClose={() => setPasswordModalOpen(false)}
+            />
             <header className="flex items-center p-4 border-b border-theme lg:border-none lg:mb-4">
                 <button onClick={() => navigate(-1)} className="p-2 -ml-2 lg:hidden">
                     <BackArrowIcon className="w-6 h-6 text-theme-primary" />
@@ -21,7 +29,7 @@ const SettingsScreen: React.FC = () => {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center">
                             <p className="text-theme-secondary">Change Password</p>
-                            <button className="text-sm font-semibold text-accent-primary hover:text-accent-hover transition-colors">Manage</button>
+                            <button onClick={() => setPasswordModalOpen(true)} className="text-sm font-semibold text-accent-primary hover:text-accent-hover transition-colors">Manage</button>
                         </div>
                         <div className="flex justify-between items-center">
                             <p className="text-theme-secondary">Manage Subscription</p>
@@ -46,20 +54,6 @@ const SettingsScreen: React.FC = () => {
                                 <input type="checkbox" value="" className="sr-only peer" />
                                 <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-accent-primary"></div>
                             </label>
-                        </div>
-                    </div>
-                </div>
-                
-                 <div className="bg-card p-6 rounded-lg border border-theme">
-                    <h2 className="text-lg font-semibold text-theme-primary mb-4">Privacy</h2>
-                     <div className="space-y-4">
-                         <div className="flex justify-between items-center">
-                            <p className="text-theme-secondary">Privacy Policy</p>
-                             <button className="text-sm font-semibold text-accent-primary hover:text-accent-hover transition-colors">View Document</button>
-                        </div>
-                        <div className="flex justify-between items-center">
-                            <p className="text-theme-secondary">Terms of Service</p>
-                             <button className="text-sm font-semibold text-accent-primary hover:text-accent-hover transition-colors">View Document</button>
                         </div>
                     </div>
                 </div>

@@ -48,7 +48,8 @@ const ResetPasswordScreen: React.FC = () => {
             const response = await resetPassword(payload);
             setMessage(response.message || 'Your password has been reset successfully! Redirecting to login...');
             setTimeout(() => navigate('/login'), 3000);
-        } catch (err: any) {
+        } catch (err: any)
+ {
             setError(err.message || 'Failed to reset password. Please check your details and try again.');
         } finally {
             setIsLoading(false);
@@ -147,8 +148,8 @@ const ResetPasswordScreen: React.FC = () => {
                     </div>
                     
                     <div className="pt-2">
-                        <Button type="submit" fullWidth disabled={isLoading || !!message}>
-                            {isLoading ? 'Resetting...' : 'Reset Password'}
+                        <Button type="submit" fullWidth isLoading={isLoading} disabled={!!message}>
+                            Reset Password
                         </Button>
                     </div>
                 </form>

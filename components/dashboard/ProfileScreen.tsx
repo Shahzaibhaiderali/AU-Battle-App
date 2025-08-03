@@ -1,20 +1,53 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { ASSETS, Spinner, BackArrowIcon, GridIcon, UserIcon, JoystickIcon, CreditCardIcon, LogOutIcon, ChevronRightIcon, PaintBrushIcon, SettingsIcon, ChevronUpIcon } from '../../constants';
+import { ASSETS, Spinner, UserIcon, WalletIcon, LogOutIcon, ChevronRightIcon, PaintBrushIcon, SettingsIcon, CameraIcon, HeadsetIcon } from '../../constants';
 import ThemeSwitcherModal from '../ui/ThemeSwitcherModal';
+import { uploadAvatar } from '../../services/authService';
+import Swal from 'sweetalert2';
 
 const ProfileScreen: React.FC = () => {
-    const { logout, user } = useAuth();
+    const { logout, user, token, updateUserContext } = useAuth();
     const navigate = useNavigate();
     const [isThemeModalOpen, setThemeModalOpen] = useState(false);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const [isUploading, setIsUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleAvatarChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+
+            if (!token) {
+                Swal.fire('Error', 'Authentication session has expired.', 'error');
+                return;
+            }
+
+            setIsUploading(true);
+            try {
+                const response = await uploadAvatar(file, token);
+                updateUserContext({ avatar_url: response.avatar_url });
+                Swal.fire('Success!', 'Your profile picture has been updated.', 'success');
+            } catch (error: any) {
+                Swal.fire('Upload Failed', error.message || 'Could not upload new picture.', 'error');
+                setAvatarPreview(null); // Revert preview on failure
+            } finally {
+                setIsUploading(false);
+            }
+        }
+    };
 
     const menuItems = [
-        { name: 'Personal Info', icon: UserIcon, action: () => {} },
-        { name: 'Game Progress', icon: JoystickIcon, action: () => {} },
-        { name: 'Billing Methods', icon: CreditCardIcon, action: () => {} },
+        { name: 'Personal Info', icon: UserIcon, action: () => navigate('/dashboard/personal-info') },
+        { name: 'My Wallet', icon: WalletIcon, action: () => navigate('/dashboard/wallet') },
         { name: 'Settings', icon: SettingsIcon, action: () => navigate('/dashboard/settings') },
+        { name: 'Help & Legal', icon: HeadsetIcon, action: () => navigate('/dashboard/legal-menu') },
     ];
 
     if (!user) {
@@ -26,34 +59,43 @@ const ProfileScreen: React.FC = () => {
         );
     }
 
+    const currentAvatar = avatarPreview || user.avatar_url || ASSETS.PROFILE_AVATAR;
+
     return (
         <div className="w-full h-full relative">
             <ThemeSwitcherModal isOpen={isThemeModalOpen} onClose={() => setThemeModalOpen(false)} />
-            {/* Custom Header - Mobile Only */}
-            <header className="px-4 py-3 flex items-center justify-between fixed top-0 w-full max-w-lg mx-auto z-30 bg-card lg:hidden">
-                <button onClick={() => navigate(-1)} className="p-2">
-                    <BackArrowIcon className="w-6 h-6 text-theme-primary" />
-                </button>
-                <h1 className="text-xl font-bold text-theme-primary">My Profile</h1>
-                <button className="p-2">
-                    <GridIcon className="w-6 h-6 text-theme-primary" />
-                </button>
-            </header>
-
-            <div className="pt-20 lg:pt-0">
+            
+            <div className="lg:pt-0">
+                <h1 className="text-2xl font-bold text-theme-primary mb-6 lg:hidden text-center">My Profile</h1>
                 <div className="lg:flex lg:items-start lg:space-x-8 max-w-4xl mx-auto">
                     {/* Left Column: User Info */}
                     <div className="flex flex-col items-center text-center fade-in-up lg:w-1/3 lg:sticky lg:top-8">
-                        <div className="relative w-28 h-28 mb-4">
+                        <div className="relative w-28 h-28 mb-4 group">
                             <img 
-                                src={ASSETS.PROFILE_AVATAR}
+                                src={currentAvatar}
                                 alt="Profile" 
                                 className="w-full h-full rounded-full object-cover border-4 border-theme"
                             />
-                            <div className="absolute inset-0 rounded-full border-2 border-accent-primary animate-ping-slow opacity-75"></div>
-                            <div className="absolute inset-0 rounded-full border-2 border-accent-primary"></div>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleAvatarChange}
+                                className="hidden"
+                                accept="image/png, image/jpeg"
+                                disabled={isUploading}
+                            />
+                             <button
+                                onClick={() => fileInputRef.current?.click()}
+                                className="absolute inset-0 bg-black/60 rounded-full flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                                aria-label="Change profile picture"
+                                disabled={isUploading}
+                            >
+                                {isUploading ? <Spinner className="w-8 h-8"/> : <CameraIcon className="w-8 h-8" />}
+                            </button>
+                            <div className="absolute inset-0 rounded-full border-2 border-accent-primary animate-ping-slow opacity-75 pointer-events-none"></div>
                         </div>
-                        <h2 className="text-2xl font-bold text-theme-primary">{user.ff_name}</h2>
+                        <h2 className="text-2xl font-bold text-theme-primary">{user.name}</h2>
+                        <p className="text-sm text-theme-secondary mt-1">FF ID: {user.ff_name}</p>
                         
                         <div className="flex flex-col items-center space-y-1 w-full text-sm text-theme-secondary mt-4">
                             <span>Joined: Mar 18th 2024</span>
@@ -105,15 +147,6 @@ const ProfileScreen: React.FC = () => {
                     </div>
                 </div>
             </div>
-
-            {/* "Slide Away" Button - Mobile Only */}
-            <button
-                onClick={() => navigate('/dashboard/play')}
-                className="fixed bottom-24 right-4 lg:hidden z-40 bg-accent-primary text-black w-12 h-12 rounded-full flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform"
-                aria-label="Go to Gameplay"
-            >
-                <ChevronUpIcon className="w-6 h-6" />
-            </button>
         </div>
     );
 };

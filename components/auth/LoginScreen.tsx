@@ -1,10 +1,13 @@
+
+
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { EyeIcon, EyeOffIcon, MailIcon, LockIcon } from '../../constants';
 import AuthLayout from './AuthLayout';
+import Swal from 'sweetalert2';
 
 const LoginScreen: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -12,14 +15,26 @@ const LoginScreen: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
     const { login, isLoading } = useAuth();
-    const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         const result = await login(email, password);
         if (result.success) {
-            navigate('/dashboard/play');
+            Swal.fire({
+                title: 'Login Successful!',
+                text: 'Welcome back to AU Battle.',
+                icon: 'success',
+                timer: 2000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                background: '#161c29',
+                color: '#ffffff',
+                customClass: {
+                    timerProgressBar: 'bg-accent-primary',
+                }
+            });
+            // The declarative route in App.tsx now handles navigation reliably.
         } else {
             setError(result.error || 'Invalid credentials');
         }
@@ -46,37 +61,38 @@ const LoginScreen: React.FC = () => {
                         />
                     </div>
 
-                    <div className="relative">
-                         <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
-                            <LockIcon className="h-5 w-5 text-theme-secondary" />
+                    <div>
+                        <div className="relative">
+                             <div className="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none">
+                                <LockIcon className="h-5 w-5 text-theme-secondary" />
+                            </div>
+                            <Input
+                                id="password"
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="Password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                className="pl-12 pr-12"
+                            />
+                            <button
+                                type="button"
+                                onClick={() => setShowPassword(!showPassword)}
+                                className="absolute inset-y-0 right-0 flex items-center pr-4 text-theme-secondary hover:text-theme-primary"
+                            >
+                                {showPassword ? <EyeOffIcon className="h-5 w-5"/> : <EyeIcon className="h-5 w-5"/>}
+                            </button>
                         </div>
-                        <Input
-                            id="password"
-                            type={showPassword ? 'text' : 'password'}
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            className="pl-12 pr-12"
-                        />
-                        <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-4 text-theme-secondary hover:text-theme-primary"
-                        >
-                            {showPassword ? <EyeOffIcon className="h-5 w-5"/> : <EyeIcon className="h-5 w-5"/>}
-                        </button>
+                        <div className="text-right mt-2">
+                            <Link to="/forgot-password" className="text-sm font-semibold text-accent-primary hover:text-accent-hover">
+                                Forgot Password?
+                            </Link>
+                        </div>
                     </div>
                     
-                    <div className="text-right -mt-2">
-                        <Link to="/forgot-password" className="text-sm text-accent-primary hover:text-accent-hover">
-                            Forgot Password?
-                        </Link>
-                    </div>
-
                     <div className="pt-2">
-                        <Button type="submit" fullWidth disabled={isLoading}>
-                            {isLoading ? 'Signing In...' : 'Login'}
+                        <Button type="submit" fullWidth isLoading={isLoading}>
+                            Login
                         </Button>
                     </div>
                 </form>

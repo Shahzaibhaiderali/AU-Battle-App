@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BubbleBackground, ASSETS, Logo } from '../../constants';
 import { Link } from 'react-router-dom';
@@ -15,13 +16,17 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({ children, title, subtitle, show
             <div className="hidden lg:flex w-1/2 bg-[#0c0a3a] relative items-center justify-center p-12">
                 <BubbleBackground />
                  <div className="relative z-10 text-center">
-                    <img src={ASSETS.LOGIN_ILLUSTRATION} alt="Gaming Illustration" className="max-w-md animate-float"/>
+                    <img src={ASSETS.WELCOME_BG} alt="Gaming Illustration" className="max-w-md animate-float"/>
                     <h1 className="text-4xl font-bold mt-8 text-white">Welcome to AU Battle</h1>
                     <p className="text-slate-300 mt-2">Your ultimate gaming destination.</p>
                 </div>
             </div>
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-4">
-                <div className="w-full max-w-sm">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-4 relative overflow-hidden">
+                 <div 
+                    className="absolute -bottom-1/4 -right-1/4 w-full h-full bg-no-repeat bg-right-bottom opacity-10 lg:opacity-20 z-0 pointer-events-none"
+                    style={{backgroundImage: `url('${ASSETS.WELCOME_BG}')`, backgroundSize: '75%'}}
+                ></div>
+                <div className="w-full max-w-sm relative z-10">
                     {showLogo && (
                         <div className="text-center mb-6">
                             <Logo size="lg" className="justify-center" />

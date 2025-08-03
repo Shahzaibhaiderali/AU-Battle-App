@@ -1,12 +1,15 @@
 
+
+
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { UserIcon, IdCardIcon, PhoneIcon, MailIcon, LockIcon, EyeIcon, EyeOffIcon } from '../../constants';
 import { SignupData } from '../../types';
 import AuthLayout from './AuthLayout';
+import Swal from 'sweetalert2';
 
 const SignupScreen: React.FC = () => {
     const [formData, setFormData] = useState({
@@ -21,7 +24,6 @@ const SignupScreen: React.FC = () => {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { signup, isLoading } = useAuth();
-    const navigate = useNavigate();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,23 +53,32 @@ const SignupScreen: React.FC = () => {
             setError('Please enter a valid 10 or 11-digit phone number.');
             return;
         }
-
-        if (formData.ff_name.length < 3 || formData.ff_name.length > 12) {
-            setError('Free Fire ID must be between 3 and 12 characters.');
-            return;
-        }
         
         const signupPayload: SignupData = {
             name: formData.name,
             email: formData.email,
             password: formData.password,
+            password_confirmation: formData.password_confirmation,
             phone_num: formData.phone_num,
             ff_name: formData.ff_name
         };
 
         const result = await signup(signupPayload);
         if (result.success) {
-            navigate('/dashboard/play');
+            Swal.fire({
+                title: 'Registration Successful!',
+                text: 'Welcome to AU Battle. Get ready for action!',
+                icon: 'success',
+                timer: 2500,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                background: '#161c29',
+                color: '#ffffff',
+                customClass: {
+                    timerProgressBar: 'bg-accent-primary',
+                }
+            });
+             // The declarative route in App.tsx now handles navigation reliably.
         } else {
             setError(result.error || 'Signup failed. Please try again.');
         }
@@ -131,8 +142,8 @@ const SignupScreen: React.FC = () => {
                     </div>
                     
                     <div className="pt-4">
-                        <Button type="submit" fullWidth disabled={isLoading}>
-                            {isLoading ? 'Creating Account...' : 'Sign Up'}
+                        <Button type="submit" fullWidth isLoading={isLoading}>
+                            Sign Up
                         </Button>
                     </div>
                 </form>
